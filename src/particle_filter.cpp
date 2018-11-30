@@ -77,9 +77,10 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 
 	for(unsigned int i=0 ; i<num_particles ; i++)
 	{
-		double x_f = particles[i].x + (velocity/yaw_rate)*(sin(particles[i].theta + (yaw_rate*delta_t)) - sin(particles[i].theta)); 
-		double y_f = particles[i].y + (velocity/yaw_rate)*(cos(particles[i].theta) - cos(particles[i].theta + (yaw_rate*delta_t))) ;
-		double theta_f = particles[i].theta + (yaw_rate*delta_t) ;
+		double theta_i = particles[i].theta ;
+		double x_f = particles[i].x + (velocity/yaw_rate)*(sin(theta_i + (yaw_rate*delta_t)) - sin(theta_i)); 
+		double y_f = particles[i].y + (velocity/yaw_rate)*(cos(theta_i) - cos(theta_i + (yaw_rate*delta_t))) ;
+		double theta_f = theta_i + (yaw_rate*delta_t) ;
 
 		particles[i].x = x_f + dist_x(gen) ;
 		particles[i].y = y_f + dist_y(gen) ;
