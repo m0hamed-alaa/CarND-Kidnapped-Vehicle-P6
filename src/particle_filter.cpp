@@ -105,10 +105,9 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	{
 		for(unsigned int j=0 ; j<predicted.size() ; j++)
 		{
-			distance = (observations[i].x - predicted[j].x)*(observations[i].x - predicted[j].x) + 
-					   (observations[i].y - predicted[j].y)*(observations[i].y - predicted[j].y);
+			distance = dist(observations[i].x,observations[i].y,predicted[j].x,predicted[j].y) ;
 
-			if(min_distance > distance)
+			if(distance < min_distance)
 			{
 				min_distance = distance ;
 				landmark_id = predicted[j].id ; 
@@ -134,6 +133,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   and the following is a good resource for the actual equation to implement (look at equation 
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
+
+	
+
 }
 
 void ParticleFilter::resample() {
