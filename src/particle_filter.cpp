@@ -134,6 +134,104 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
+	//run over each particle
+
+	unsigned int num_observations = observations.size() ;
+	
+	std::vector<LandmarkObs> transformed_observations(num_observations) ;
+	
+	std::vector<LandmarkObs> predicted_measuremets ;
+
+	for(unsigned int p=0 ; p<num_particles ; p++)
+	{
+		// transform observed measurements from vehicle's coordinate system to map's coordinate system
+		// with respect to each particle
+
+		for(unsigned int i=0 ; i<num_observations ; i++)
+		{
+			double observation_x = observations[i].x ;
+			double observation_y = observations[i].y ;
+			double theta = particles[p].theta ;
+			transformed_observations[i].x =particles[p].x+(cos(theta)*observation_x)-(sin(theta)*observation_y);
+			transformed_observations[i].y =particles[p].y+(sin(theta)*observation_x)+(cos(theta)*observation_y); 
+		}
+
+		// predict measurements to all the map landmarks within sensor range for each particle
+		
+		predicted_measuremets.clear() ;
+
+		for(unsigned int j=0 ; j<map_landmarks.landmark_list.size() ; j++)
+		{
+			double distance = dist(particles[p].x,particles[p].y,map_landmarks.landmark_list[j].x_f,
+								   map_landmarks.landmark_list[j].y_f) ;
+
+			LandmarkObs landmark ;
+
+			if(distance <= sensor_range)
+			{
+				landmark.id = map_landmarks.landmark_list[j].id_i ;
+				landmark.x  = map_landmarks.landmark_list[j].x_f ;
+				landmark.y  = map_landmarks.landmark_list[j].y_f ;
+				predicted_measuremets.push_back(landmark) ;
+			}
+			
+		}
+
+		// associate the transformed observations with the nearest landmark on the map
+
+		dataAssociation(predicted_measuremets , transformed_observations ) ;
+
+		particles[p].weight = 1.0 ;
+
+		// caluclate particle weight based on the likelihood of the observed measurements
+
+		for(unsigned int k=0; k<num_observations ; k++)
+		{
+			
+
+			// find coordinates of the associated landmark position
+
+			int associated_id = transformed_observations[k].id ;
+			
+			double lm_x = -1 ;     		// nearest landmark's x position 
+			double lm_y = -1 ;     		// nearest landmark's y position
+
+			
+
+			for(unsigned int l=0 ; l<predicted_measuremets.size() ; l++)
+			{
+				if(predicted_measuremets[l].id == associated_id)
+				{
+					lm_x = predicted_measuremets[l].x ;
+					lm_y = predicted_measuremets[l].y ; 
+					break;
+				}
+			}
+
+			// calculate each transformed observation probability using
+			// multi-variate gaussian probability density function
+
+			// where
+			// lm_x is mu_x  and lm_y is mu_y
+			// std_landmark[0] is sigma_x and std_landmark[1] is sigma_y
+
+			double gaussian_normalizer = 1.0/(2*M_PI*std_landmark[0]*std_landmark[1]) ;
+			double exponent = (pow(transformed_observations[k].x-lm_x,2)/(2*pow(std_landmark[0],2)))+
+							  (pow(transformed_observations[k].y-lm_y,2)/(2*pow(std_landmark[1],2))) ;
+			
+			double measurement_probability = gaussian_normalizer*exp(-exponent) ;
+
+			// combine the probabilities of all measurements by taking their product
+
+			particles[p].weight *= measurement_probability ; 
+
+
+		}
+
+
+	}
+
+
 	
 
 }
