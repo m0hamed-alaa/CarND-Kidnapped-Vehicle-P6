@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 #include <iterator>
+#include <limits>
 
 #include "particle_filter.h"
 
@@ -98,7 +99,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   implement this method and use it as a helper during the updateWeights phase.
 
 	double distance ;
-	double min_distance = 0.0;
+	double min_distance = std::numeric_limits<double>::infinity();
 	unsigned int landmark_id = 0.0 ;
 
 	for(unsigned int i=0 ; i<observations.size() ; i++)
@@ -229,7 +230,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		}
 
 
+
 	}
+
+
 
 
 	
