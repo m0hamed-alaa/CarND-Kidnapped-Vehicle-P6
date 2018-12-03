@@ -135,13 +135,17 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 
-	//run over each particle
+	
 
 	unsigned int num_observations = observations.size() ;
 	
 	std::vector<LandmarkObs> transformed_observations(num_observations) ;
 	
 	std::vector<LandmarkObs> predicted_measuremets ;
+
+	weights.clear();
+
+	//run over each particle
 
 	for(unsigned int p=0 ; p<num_particles ; p++)
 	{
@@ -183,6 +187,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		dataAssociation(predicted_measuremets , transformed_observations ) ;
 
 		particles[p].weight = 1.0 ;
+
+
 
 		// caluclate particle weight based on the likelihood of the observed measurements
 
@@ -229,6 +235,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
 		}
 
+		weights.push_back(particles[p].weight) ;
 
 
 	}
