@@ -28,7 +28,7 @@ struct Particle {
 class ParticleFilter {
 	
 	// Number of particles to draw
-	int num_particles; 
+	unsigned int num_particles; 
 	
 	
 	
@@ -78,7 +78,7 @@ public:
 	 * @param predicted Vector of predicted landmark observations
 	 * @param observations Vector of landmark observations
 	 */
-	void dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations);
+std::vector<LandmarkObs> dataAssociation(const std::vector<LandmarkObs>& observations ,const  std::vector<LandmarkObs>& inRange_landmarks); 
 	
 	/**
 	 * updateWeights Updates the weights for each particle based on the likelihood of the 
@@ -88,6 +88,12 @@ public:
 	 * @param observations Vector of landmark observations
 	 * @param map Map class containing map landmarks
 	 */
+	//------------------------------
+	std::vector<LandmarkObs> transform_observations(const std::vector<LandmarkObs>& observations , const Particle& particle);
+	std::vector<LandmarkObs> find_inRange_landmarks(const Particle &particle , const Map &map_landmarks , const double sensor_range);
+	double calculate_weight(const std::vector<LandmarkObs>& transformed_observations , const std::vector<LandmarkObs>& associated_landmarks , double std_landmark[]);
+
+	//------------------------------
 	void updateWeights(double sensor_range, double std_landmark[], const std::vector<LandmarkObs> &observations,
 			const Map &map_landmarks);
 	
