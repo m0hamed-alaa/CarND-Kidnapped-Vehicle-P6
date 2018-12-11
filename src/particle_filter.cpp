@@ -116,7 +116,9 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 }
 
 std::vector<LandmarkObs> ParticleFilter::transform_observations(const std::vector<LandmarkObs>& observations , const Particle & particle)
-{
+{	// Transform each observation from vehicle coordinates to map coordintes 
+	// with repsect to each particle
+
 	unsigned int num_observations = observations.size() ;
 
 	std::vector<LandmarkObs> transformed_observations(num_observations) ; 
@@ -130,14 +132,15 @@ std::vector<LandmarkObs> ParticleFilter::transform_observations(const std::vecto
 		transformed_observations[i].y =particle.y+(sin(theta)*observation_x)+(cos(theta)*observation_y); 
 	}
 
-	//cout<<"transformation done"<<endl;
 
 	return transformed_observations ;
 
 }
 
 std::vector<LandmarkObs> ParticleFilter::find_inRange_landmarks(const Particle &particle , const Map &map_landmarks , const double sensor_range)
-{
+{	
+	// Find the map landmarks that surrounds each particle within sensor range
+
 	std::vector<LandmarkObs> inRange_landmarks ;
 	
 	for(unsigned int j=0 ; j<map_landmarks.landmark_list.size() ; j++)
@@ -156,21 +159,7 @@ std::vector<LandmarkObs> ParticleFilter::find_inRange_landmarks(const Particle &
 		
 	}
 	
-	/*
-	if(inRange_landmarks.size() != 0 )
-	{
-		cout<<"inRange landmarks found"<<endl;
-	}
-	else
-	{
-		cout<<"inRange landmarks not found !!"<<endl;
-	}
-	cout<<"\ninRange landmarks:";
-	for(unsigned int h=0;h<inRange_landmarks.size() ; h++)
-	{
-		cout<<inRange_landmarks[h].id<<","<<inRange_landmarks[h].x<<","<<inRange_landmarks[h].y<<endl;
-	}
-	*/
+	
 	return inRange_landmarks ;
 
 }
@@ -226,16 +215,6 @@ std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<Landm
 		associated_landmarks.push_back(nearest_landmark) ;
 	}
 
-	/*
-	if(associated_landmarks.size() != 0)
-	{
-		cout<<"data association done"<<endl;
-	}
-	else
-	{
-		cout<<"data association not done"<<endl;
-	}
-	*/
 
 	SetAssociations(particle , associations_id , associations_x , associations_y) ;
 	
@@ -245,6 +224,8 @@ std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<Landm
 
 double ParticleFilter::calculate_weight(const std::vector<LandmarkObs>& transformed_observations , const std::vector<LandmarkObs>& associated_landmarks , double std_landmark[])
 {
+	// calculate the observations likelihood based on multivariate gaussian disribution
+	
 	double weight = 1.0;
 	
 	unsigned int num_observations = transformed_observations.size() ;

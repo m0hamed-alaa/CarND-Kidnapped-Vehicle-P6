@@ -88,12 +88,18 @@ std::vector<LandmarkObs> dataAssociation(const std::vector<LandmarkObs>& observa
 	 * @param observations Vector of landmark observations
 	 * @param map Map class containing map landmarks
 	 */
-	//------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	// Helper functions
+
 	std::vector<LandmarkObs> transform_observations(const std::vector<LandmarkObs>& observations , const Particle& particle);
+	
 	std::vector<LandmarkObs> find_inRange_landmarks(const Particle &particle , const Map &map_landmarks , const double sensor_range);
+	
 	double calculate_weight(const std::vector<LandmarkObs>& transformed_observations , const std::vector<LandmarkObs>& associated_landmarks , double std_landmark[]);
 
-	//------------------------------
+	//----------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
 	void updateWeights(double sensor_range, double std_landmark[], const std::vector<LandmarkObs> &observations,
 			const Map &map_landmarks);
 	
