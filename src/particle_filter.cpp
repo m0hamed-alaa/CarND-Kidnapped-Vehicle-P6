@@ -175,7 +175,7 @@ std::vector<LandmarkObs> ParticleFilter::find_inRange_landmarks(const Particle &
 
 }
 
-std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<LandmarkObs>& observations ,const  std::vector<LandmarkObs>& inRange_landmarks) 
+std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<LandmarkObs>& observations ,const  std::vector<LandmarkObs>& inRange_landmarks,Particle& particle) 
 {
 	// TODO: Find the predicted measurement that is closest to each observed measurement and assign the 
 	//   observed measurement to this particular landmark.
@@ -187,8 +187,13 @@ std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<Landm
 	
 
 	LandmarkObs nearest_landmark;
+
 	std::vector<LandmarkObs> associated_landmarks ;
-	
+
+	std::vector<int> associations_id ;
+	std::vector<double> associations_x ;
+	std::vector<double> associations_y ;
+
 
 	for(unsigned int i=0 ; i<observations.size() ; i++)
 	{
@@ -214,6 +219,9 @@ std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<Landm
 			
 		}
 
+		associations_id.push_back(nearest_landmark.id);
+		associations_x.push_back(nearest_landmark.x);
+		associations_y.push_back(nearest_landmark.y);
 		
 		associated_landmarks.push_back(nearest_landmark) ;
 	}
@@ -228,6 +236,9 @@ std::vector<LandmarkObs> ParticleFilter::dataAssociation(const std::vector<Landm
 		cout<<"data association not done"<<endl;
 	}
 	*/
+
+	SetAssociations(particle , associations_id , associations_x , associations_y) ;
+	
 	return associated_landmarks ;
 
 }
@@ -313,7 +324,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		// associate the transformed observations with the nearest landmark on the map
 
 		
-		associated_landmarks = dataAssociation(transformed_observations , inRange_landmarks) ;
+		associated_landmarks = dataAssociation(transformed_observations , inRange_landmarks , particles[p]) ;
 
 
 		// caluclate particle weight based on the likelihood of the observed measurements
@@ -356,7 +367,7 @@ void ParticleFilter::resample() {
 
 }
 
-Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
+ void ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
                                      const std::vector<double>& sense_x, const std::vector<double>& sense_y)
 {
     //particle: the particle to assign each listed association, and association's (x,y) world coordinates mapping to
@@ -367,6 +378,7 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
 	particle.associations.clear();
 	particle.sense_x.clear();
 	particle.sense_y.clear();
+
 	particle.associations= associations;
     particle.sense_x = sense_x;
     particle.sense_y = sense_y;
